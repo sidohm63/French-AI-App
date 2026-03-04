@@ -1,2 +1,0 @@
-# French-AI-App
-تعلم
