@@ -3,33 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أكاديمية الفرنسية الذكية - النسخة النهائية</title>
+    <title>أكاديمية الفرنسية الذكية</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --main-blue: #002395; --gold: #ffc107; --light-bg: #f8f9fa; }
-        body { background-color: var(--light-bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 50px; }
-        
-        /* الهيدر */
-        .navbar { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); sticky: top; }
+        :root { --main-blue: #002395; --gold: #ffc107; }
+        body { background-color: #f8f9fa; font-family: sans-serif; padding-bottom: 50px; }
+        .navbar { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .points-badge { background: var(--gold); color: #000; font-weight: bold; padding: 5px 15px; border-radius: 20px; }
-
-        /* خريطة الطريق */
-        .roadmap { position: relative; padding: 40px 0; max-width: 500px; margin: auto; }
-        .roadmap::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: #dee2e6; transform: translateX(-50%); }
-        .level-node { position: relative; z-index: 2; margin-bottom: 40px; text-align: center; }
-        .level-circle { width: 60px; height: 60px; border-radius: 50%; background: white; border: 4px solid #dee2e6; display: flex; align-items: center; justify-content: center; margin: auto; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .ai-box { background: white; border-radius: 20px; padding: 25px; border: 2px solid var(--main-blue); box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 20px; }
+        #aiResponse { background: #f0f4f8; border-right: 5px solid var(--main-blue); padding: 15px; border-radius: 10px; margin-top: 15px; display: none; white-space: pre-wrap; text-align: right; }
+        .roadmap { max-width: 500px; margin: auto; padding: 20px 0; position: relative; }
+        .level-node { text-align: center; margin-bottom: 30px; cursor: pointer; }
+        .level-circle { width: 50px; height: 50px; border-radius: 50%; border: 3px solid #ddd; display: flex; align-items: center; justify-content: center; margin: auto; background: white; font-weight: bold; transition: 0.3s; }
         .active .level-circle { border-color: var(--main-blue); color: var(--main-blue); }
-        .locked .level-circle { color: #ccc; }
-        .level-label { background: white; display: inline-block; padding: 5px 15px; border-radius: 15px; margin-top: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 0.9rem; }
-
-        /* منطقة التصحيح */
-        .ai-box { background: white; border-radius: 20px; padding: 25px; border: 2px solid var(--main-blue); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        #aiResponse { background: #f0f4f8; border-right: 5px solid var(--main-blue); padding: 15px; border-radius: 10px; margin-top: 15px; display: none; white-space: pre-wrap; }
-        
-        /* خيارات الاختبار */
-        .quiz-opt { border: 2px solid #eee; padding: 12px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; text-align: right; }
+        .locked { opacity: 0.5; cursor: not-allowed; }
+        .quiz-opt { border: 2px solid #eee; padding: 12px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; text-align: right; }
         .quiz-opt:hover { border-color: var(--main-blue); background: #f0f7ff; }
     </style>
 </head>
@@ -43,30 +33,23 @@
 </nav>
 
 <div class="container">
-    <h5 class="text-center mb-4">مسارك التعليمي</h5>
     <div class="roadmap" id="levelsMap"></div>
 
-    <div class="ai-box mt-4">
-        <h6 class="fw-bold mb-3"><i class="fas fa-robot text-primary"></i> المصحح الذكي (احصد 5 نقاط)</h6>
-        <textarea id="aiInput" class="form-control mb-3" rows="3" placeholder="اكتب جملة فرنسية هنا لتصحيحها..."></textarea>
+    <div class="ai-box">
+        <h6 class="fw-bold mb-3"><i class="fas fa-robot text-primary"></i> المصحح الذكي</h6>
+        <textarea id="aiInput" class="form-control mb-3" rows="3" placeholder="اكتب جملة فرنسية هنا..."></textarea>
         <button onclick="checkSentence()" id="btnCheck" class="btn btn-primary w-100 fw-bold">تحقق الآن</button>
         <div id="aiResponse"></div>
-        <button id="btnSpeak" onclick="speakText()" class="btn btn-outline-secondary btn-sm mt-2" style="display:none;">
-            <i class="fas fa-volume-up"></i> استمع للنطق
-        </button>
     </div>
 </div>
 
 <div class="modal fade" id="quizModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 20px;">
-            <div class="modal-body p-4">
-                <div id="quizLoader" class="text-center py-4">
-                    <div class="spinner-border text-primary"></div>
-                    <p class="mt-2">جاري تجهيز سؤال ذكي...</p>
-                </div>
+        <div class="modal-content">
+            <div class="modal-body p-4 text-center" id="quizContent">
+                <div id="loader" class="spinner-border text-primary"></div>
                 <div id="quizArea" style="display:none;">
-                    <h5 id="qText" class="mb-4 fw-bold"></h5>
+                    <h5 id="qText" class="mb-4"></h5>
                     <div id="qOptions"></div>
                 </div>
             </div>
@@ -74,135 +57,116 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // الإعدادات - مفتاحك يعمل الآن
-    const API_KEY = "AIzaSyC8xFjYovaYTFY5CT2pX3xI_Zd-QSRyu_c";
+    // تم وضع المفتاح الخاص بك هنا بناءً على الصورة
+    const API_KEY = "AIzaSyBvhL9zztNtfn7GCJSMisqqQSvKp6Ln30Y";
     let points = parseInt(localStorage.getItem('fr_pts')) || 0;
 
     const levels = [
-        { id: 1, title: "الأساسيات A1", req: 0, topic: "Greetings" },
-        { id: 2, title: "الحياة اليومية A2", req: 50, topic: "Daily Life" },
-        { id: 3, title: "المتوسط B1", req: 150, topic: "Work & Future" },
-        { id: 4, title: "المتقدم B2", req: 300, topic: "Culture & Debates" }
+        { id: 1, title: "المستوى الأول", req: 0 },
+        { id: 2, title: "المستوى الثاني", req: 50 },
+        { id: 3, title: "المستوى الثالث", req: 150 }
     ];
 
-    // تحديث الواجهة
-    function renderApp() {
+    function render() {
         document.getElementById('userPoints').innerText = points;
         const map = document.getElementById('levelsMap');
         map.innerHTML = '';
-        
-        levels.forEach(lvl => {
-            const isLocked = points < lvl.req;
+        levels.forEach(l => {
+            const isLocked = points < l.req;
             map.innerHTML += `
-                <div class="level-node ${isLocked ? 'locked' : 'active'}">
-                    <div class="level-circle" onclick="openQuiz(${lvl.id}, ${isLocked})">
-                        ${isLocked ? '<i class="fas fa-lock"></i>' : lvl.id}
-                    </div>
-                    <div class="level-label">
-                        <div class="fw-bold">${lvl.title}</div>
-                        ${isLocked ? `<small class="text-danger">مطلوب ${lvl.req}⭐</small>` : '<small class="text-success">جاهز!</small>'}
-                    </div>
+                <div class="level-node ${isLocked ? 'locked' : 'active'}" onclick="startQuiz(${l.id}, ${isLocked})">
+                    <div class="level-circle">${isLocked ? '🔒' : l.id}</div>
+                    <div class="small mt-1">${l.title}</div>
                 </div>`;
         });
     }
 
-    // وظيفة التصحيح
     async function checkSentence() {
         const input = document.getElementById('aiInput').value;
         if (!input) return;
+        
         const btn = document.getElementById('btnCheck');
         const resBox = document.getElementById('aiResponse');
         
-        btn.disabled = true; btn.innerText = "جاري التحليل...";
-        
+        btn.disabled = true;
+        resBox.style.display = 'block';
+        resBox.innerText = "جاري التحليل...";
+
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `Correct this French sentence and explain in Arabic: "${input}"` }] }]
+                    contents: [{ parts: [{ text: `Correct this French: "${input}". Explain in Arabic.` }] }]
                 })
             });
             const data = await response.json();
-            const result = data.candidates[0].content.parts[0].text;
+            if (data.error) throw new Error(data.error.message);
             
-            resBox.innerText = result;
-            resBox.style.display = 'block';
-            document.getElementById('btnSpeak').style.display = 'inline-block';
-            
-            points += 5; save();
-            Swal.fire('أحسنت!', 'حصلت على 5 نقاط لتطوير مستواك.', 'success');
+            resBox.innerText = data.candidates[0].content.parts[0].text;
+            points += 5; 
+            save();
         } catch (e) {
-            Swal.fire('خطأ', 'تأكد من فتح الرابط عبر Netlify (HTTPS).', 'error');
+            Swal.fire('خطأ', 'تأكد من المفتاح والإنترنت: ' + e.message, 'error');
+            resBox.style.display = 'none';
         } finally {
-            btn.disabled = false; btn.innerText = "تحقق الآن";
+            btn.disabled = false;
         }
     }
 
-    // نظام الاختبارات الذكي
-    async function openQuiz(lvlId, locked) {
-        if (locked) return Swal.fire('مغلق', 'اجمع المزيد من النقاط لفتح هذا المستوى.', 'warning');
-        
-        const lvl = levels.find(l => l.id === lvlId);
+    async function startQuiz(id, locked) {
+        if (locked) return Swal.fire('مغلق', 'اجمع المزيد من النقاط!', 'warning');
         const modal = new bootstrap.Modal(document.getElementById('quizModal'));
         modal.show();
         
-        document.getElementById('quizLoader').style.display = 'block';
+        document.getElementById('loader').style.display = 'block';
         document.getElementById('quizArea').style.display = 'none';
 
         try {
-            const prompt = `Create a French MCQ for level ${lvl.title} about ${lvl.topic}. Return ONLY JSON: {"q":"question","opts":["a","b","c","d"],"ans":0,"exp":"Arabic explanation"}`;
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `Create 1 French MCQ JSON: {"q":"..","opts":["..",".."],"ans":0,"exp":".."}` }] }]
+                })
             });
-            const data = await res.json();
+            const data = await response.json();
             const quiz = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, ""));
             
             document.getElementById('qText').innerText = quiz.q;
-            const optDiv = document.getElementById('qOptions');
-            optDiv.innerHTML = '';
+            const opts = document.getElementById('qOptions');
+            opts.innerHTML = '';
             quiz.opts.forEach((o, i) => {
-                const div = document.createElement('div');
-                div.className = 'quiz-opt';
-                div.innerText = o;
-                div.onclick = () => {
+                const d = document.createElement('div');
+                d.className = 'quiz-opt';
+                d.innerText = o;
+                d.onclick = () => {
                     modal.hide();
                     if(i === quiz.ans) {
-                        points += 20; save();
-                        Swal.fire('صح! (+20⭐)', quiz.exp, 'success');
+                        points += 10; save();
+                        Swal.fire('صح!', quiz.exp, 'success');
                     } else {
                         Swal.fire('خطأ', quiz.exp, 'error');
                     }
                 };
-                optDiv.appendChild(div);
+                opts.appendChild(d);
             });
-            
-            document.getElementById('quizLoader').style.display = 'none';
+            document.getElementById('loader').style.display = 'none';
             document.getElementById('quizArea').style.display = 'block';
         } catch (e) {
             modal.hide();
-            Swal.fire('عذراً', 'حاول مرة أخرى لاحقاً.', 'error');
+            Swal.fire('خطأ', 'فشل في تحميل السؤال', 'error');
         }
-    }
-
-    function speakText() {
-        const text = document.getElementById('aiResponse').innerText;
-        const msg = new SpeechSynthesisUtterance(text.split('\n')[0]);
-        msg.lang = 'fr-FR';
-        window.speechSynthesis.speak(msg);
     }
 
     function save() {
         localStorage.setItem('fr_pts', points);
-        renderApp();
+        render();
     }
 
-    renderApp();
+    render();
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
